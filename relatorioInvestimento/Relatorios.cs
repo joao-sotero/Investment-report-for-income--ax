@@ -79,6 +79,47 @@ namespace relatorioInvestimento
             }
         }
 
+        public static void AtualizaCsvCompra(string pathFile, NotaNegociacao nota, int ano)
+        {
+            List<string> linhas = new List<string>();
+
+            using (StreamReader file = new StreamReader(pathFile))
+            {
+                string linha;
+                while ((linha = file.ReadLine()) != null)
+                {
+                    linhas.Add(linha);
+                }
+            }
+            if (nota.FinanceiroCompra > 0 && nota.DataNegociacao.Year == ano)
+            {
+                if (!linhas.Any(l => l.StartsWith(nota.Ativo)) || linhas.Count == 1)
+                    linhas.Add($"{nota.Ativo};{nota.QuantidadeCompra};{nota.FinanceiroCompra};{nota.FinanceiroCompra / nota.QuantidadeCompra}");
+                else
+                {
+                    for (int i = 0; i < linhas.Count; i++)
+                    {
+                        string[] campos = linhas[i].Split(';');
+                        if (campos[0] == nota.Ativo)
+                        {
+                            int quantidade = int.Parse(campos[1]) + nota.QuantidadeCompra;
+                            decimal preco = decimal.Parse(campos[2]) + nota.FinanceiroCompra;
+                            linhas[i] = $"{nota.Ativo};{quantidade};{preco:F2};{preco / quantidade:F2}";
+                        }
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder();
+                foreach (string linha in linhas)
+                    sb.AppendLine(linha);
+
+                using (StreamWriter file = new StreamWriter(pathFile))
+                {
+                    file.Write(sb.ToString());
+                }
+            }
+        }
+
         public static void AtualizaCsvCompra(string pathFile, NotaNegociacao nota)
         {
             List<string> linhas = new List<string>();
@@ -108,17 +149,15 @@ namespace relatorioInvestimento
                         }
                     }
                 }
+            }
 
-                StringBuilder sb = new StringBuilder();
-                foreach (string linha in linhas)
-                {
-                    sb.AppendLine(linha);
-                }
+            StringBuilder sb = new StringBuilder();
+            foreach (string linha in linhas)
+                sb.AppendLine(linha);
 
-                using (StreamWriter file = new StreamWriter(pathFile))
-                {
-                    file.Write(sb.ToString());
-                }
+            using (StreamWriter file = new StreamWriter(pathFile))
+            {
+                file.Write(sb.ToString());
             }
         }
 
@@ -156,9 +195,50 @@ namespace relatorioInvestimento
 
                 StringBuilder sb = new StringBuilder();
                 foreach (string linha in linhas)
-                {
                     sb.AppendLine(linha);
+
+                using (StreamWriter file = new StreamWriter(pathFile))
+                {
+                    file.Write(sb.ToString());
                 }
+            }
+        }
+
+        public static void AtualizaCsvVenda(string pathFile, NotaNegociacao nota, int ano)
+        {
+            List<string> linhas = new List<string>();
+
+            using (StreamReader file = new StreamReader(pathFile))
+            {
+                string linha;
+                while ((linha = file.ReadLine()) != null)
+                {
+                    linhas.Add(linha);
+                }
+            }
+
+            if (nota.FinanceiroVenda > 0 && nota.DataNegociacao.Year == ano)
+            {
+                if (linhas.Count == 1 || !linhas.Any(l => l.StartsWith(nota.Ativo)))
+                    linhas.Add($"{nota.Ativo};{nota.QuantidadeVenda};{nota.Preco};{nota.FinanceiroVenda}");
+                else
+                {
+                    for (int i = 0; i < linhas.Count; i++)
+                    {
+                        string[] campos = linhas[i].Split(';');
+                        if (campos[0] == nota.Ativo)
+                        {
+                            int quantidade = int.Parse(campos[1]) + nota.QuantidadeVenda;
+                            decimal precoCompra = decimal.Parse(campos[2]) + nota.Preco;
+                            decimal precoVenda = decimal.Parse(campos[3]) + nota.FinanceiroVenda;
+                            linhas[i] = $"{nota.Ativo};{quantidade};{precoCompra:F2};{precoCompra:F2}";
+                        }
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder();
+                foreach (string linha in linhas)
+                    sb.AppendLine(linha);
 
                 using (StreamWriter file = new StreamWriter(pathFile))
                 {

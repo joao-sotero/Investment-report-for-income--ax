@@ -29,7 +29,9 @@ foreach (var relatorio in relatorios)
     var notas = Relatorios.AbreArquivo(relatorio);
     foreach (var nota in notas)
     {
-        Relatorios.AtualizaCsvCompra($"{diretorioCompra}\\{realatorioCompra}", nota);
-        Relatorios.AtualizaCsvVenda($"{diretorioVenda}\\{realatorioVenda}", nota);
+        //Relatorios.AtualizaCsvCompra($"{diretorioCompra}\\{realatorioCompra}", nota);
+        //Relatorios.AtualizaCsvVenda($"{diretorioVenda}\\{realatorioVenda}", nota);
+        Relatorios.AtualizaCsvCompra($"{diretorioCompra}\\{realatorioCompra}", nota, DateTime.Now.Year);
+        Relatorios.AtualizaCsvVenda($"{diretorioVenda}\\{realatorioVenda}", nota, , DateTime.Now.Year);
     }
 }
